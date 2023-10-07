@@ -1,25 +1,42 @@
-import { useState } from "react";
+import { useReducer, useState } from 'react';
+
+const reducer = function (state, action) {
+  switch (action.type) {
+    case 'inc':
+      return state + 1;
+    case 'dec':
+      return state - 1;
+    case 'setCount':
+      return action.payload;
+    default:
+      throw new Error('Something went wrong!');
+  }
+};
 
 function DateCounter() {
-  const [count, setCount] = useState(0);
+  const [count, dispatch] = useReducer(reducer, 0);
+
   const [step, setStep] = useState(1);
 
   // This mutates the date object.
-  const date = new Date("june 21 2027");
+  const date = new Date('june 21 2027');
   date.setDate(date.getDate() + count);
 
   const dec = function () {
     // setCount((count) => count - 1);
-    setCount((count) => count - step);
+    // setCount((count) => count - step);
+    dispatch({ type: 'dec' });
   };
 
   const inc = function () {
     // setCount((count) => count + 1);
-    setCount((count) => count + step);
+    // setCount((count) => count + step);
+    dispatch({ type: 'inc' });
   };
 
   const defineCount = function (e) {
-    setCount(Number(e.target.value));
+    // setCount(Number(e.target.value));
+    dispatch({ type: 'setCount', payload: Number(e.target.value) });
   };
 
   const defineStep = function (e) {
@@ -32,12 +49,12 @@ function DateCounter() {
   };
 
   return (
-    <div className="counter">
+    <div className='counter'>
       <div>
         <input
-          type="range"
-          min="0"
-          max="10"
+          type='range'
+          min='0'
+          max='10'
           value={step}
           onChange={defineStep}
         />
@@ -46,7 +63,10 @@ function DateCounter() {
 
       <div>
         <button onClick={dec}>-</button>
-        <input value={count} onChange={defineCount} />
+        <input
+          value={count}
+          onChange={defineCount}
+        />
         <button onClick={inc}>+</button>
       </div>
 
@@ -59,3 +79,4 @@ function DateCounter() {
   );
 }
 export default DateCounter;
+
