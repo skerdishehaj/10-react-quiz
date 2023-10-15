@@ -61,6 +61,14 @@ const reducer = (state, action) => {
         highScore:
           state.points > state.highScore ? state.points : state.highScore,
       };
+    case 'restart':
+      return {
+        ...state,
+        status: 'ready',
+        index: 0,
+        answer: null,
+        points: 0,
+      };
     default:
       return state;
   }
@@ -69,7 +77,7 @@ const reducer = (state, action) => {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { questions, status, index, answer, points, highScore } = state;
-  const totalPoints = questions.reduce((acc, curr) => acc + curr.points, 0);
+  const totalPoints = questions?.reduce((acc, curr) => acc + curr.points, 0);
 
   useEffect(() => {
     fetch('http://localhost:8000/questions')
@@ -127,6 +135,7 @@ function App() {
         )}
         {status === 'finished' && (
           <FinishScreen
+            dispatch={dispatch}
             highScore={highScore}
             points={points}
             totalPoints={totalPoints}
