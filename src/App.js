@@ -10,15 +10,21 @@ import { Fragment } from 'react';
 import NextButton from './components/NextButton';
 import Progress from './components/Progress';
 import FinishScreen from './components/FinishScreen';
+import Footer from './components/Footer';
+import Timer from './components/Timer';
+
+const SECS_PER_QUESTION = 30;
 
 const initialState = {
   questions: [],
+
   // 'loading', 'ready', 'active', 'error', 'finished'
   status: 'loading',
   index: 0,
   answer: null,
   points: 0,
   highScore: 0,
+  secondsRemaining: null,
 };
 const reducer = (state, action) => {
   switch (action.type) {
@@ -37,6 +43,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         status: 'active',
+        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
       };
     case 'newAnswer':
       const question = state.questions.at(state.index);
@@ -63,11 +70,16 @@ const reducer = (state, action) => {
       };
     case 'restart':
       return {
-        ...state,
+        ...initialState,
         status: 'ready',
-        index: 0,
-        answer: null,
-        points: 0,
+        questions: state.questions,
+        highScore: state.highScore,
+      };
+    case 'tick':
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? 'finished' : state.status,
       };
     default:
       return state;
@@ -76,7 +88,15 @@ const reducer = (state, action) => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { questions, status, index, answer, points, highScore } = state;
+  const {
+    questions,
+    status,
+    index,
+    answer,
+    points,
+    highScore,
+    secondsRemaining,
+  } = state;
   const totalPoints = questions?.reduce((acc, curr) => acc + curr.points, 0);
 
   useEffect(() => {
@@ -102,15 +122,19 @@ function App() {
   return (
     <div className='app'>
       <Header />
+
       <Main>
         {status === 'loading' && <Loader />}
+
         {status === 'error' && <Error />}
+
         {status === 'ready' && (
           <StartScreen
             dispatch={dispatch}
             numQuestions={numQuestions}
           />
         )}
+
         {status === 'active' && (
           <Fragment>
             <Progress
@@ -125,14 +149,21 @@ function App() {
               dispatch={dispatch}
               answer={answer}
             />
-            <NextButton
-              numQuestions={numQuestions}
-              index={index}
-              dispatch={dispatch}
-              answer={answer}
-            />
+            <Footer>
+              <Timer
+                dispatch={dispatch}
+                secondsRemaining={secondsRemaining}
+              />
+              <NextButton
+                numQuestions={numQuestions}
+                index={index}
+                dispatch={dispatch}
+                answer={answer}
+              />
+            </Footer>
           </Fragment>
         )}
+
         {status === 'finished' && (
           <FinishScreen
             dispatch={dispatch}
