@@ -8,6 +8,7 @@ import StartScreen from './components/StartScreen';
 import Question from './components/Question';
 import { Fragment } from 'react';
 import NextButton from './components/NextButton';
+import Progress from './components/Progress';
 
 const initialState = {
   questions: [],
@@ -58,7 +59,8 @@ const reducer = (state, action) => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { questions, status, index, answer } = state;
+  const { questions, status, index, answer, points } = state;
+  const totalPoints = questions.reduce((acc, curr) => acc + curr.points, 0);
 
   useEffect(() => {
     fetch('http://localhost:8000/questions')
@@ -94,6 +96,13 @@ function App() {
         )}
         {status === 'active' && (
           <Fragment>
+            <Progress
+              answer={answer}
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              totalPoints={totalPoints}
+            />
             <Question
               question={questions[index]}
               dispatch={dispatch}
