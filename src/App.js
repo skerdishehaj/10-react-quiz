@@ -1,16 +1,19 @@
 import { useEffect } from 'react';
-import Header from './Header';
+import Header from './components/Header';
 import Main from './Main';
 import { useReducer } from 'react';
-import Loader from './Loader';
-import Error from './Error';
-import StartScreen from './StartScreen';
-import Question from './Question';
+import Loader from './components/Loader';
+import Error from './components/Error';
+import StartScreen from './components/StartScreen';
+import Question from './components/Question';
 
 const initialState = {
   questions: [],
   // 'loading', 'ready', 'active', 'error', 'finished'
   status: 'loading',
+  index: 0,
+  answer: null,
+  points: 0,
 };
 const reducer = (state, action) => {
   switch (action.type) {
@@ -30,6 +33,16 @@ const reducer = (state, action) => {
         ...state,
         status: 'active',
       };
+    case 'newAnswer':
+      const question = state.questions.at(state.index);
+      return {
+        ...state,
+        answer: action.payload,
+        points:
+          action.payload === question.correctOption
+            ? state.points + question.points
+            : state.points,
+      };
     default:
       return state;
   }
@@ -37,7 +50,7 @@ const reducer = (state, action) => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { questions, status } = state;
+  const { questions, status, index, answer } = state;
 
   useEffect(() => {
     fetch('http://localhost:8000/questions')
@@ -71,7 +84,13 @@ function App() {
             numQuestions={numQuestions}
           />
         )}
-        {status === 'active' && <Question questions={questions} />}
+        {status === 'active' && (
+          <Question
+            question={questions[index]}
+            dispatch={dispatch}
+            answer={answer}
+          />
+        )}
       </Main>
     </div>
   );
