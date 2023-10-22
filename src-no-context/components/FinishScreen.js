@@ -1,9 +1,6 @@
 import { Fragment } from 'react';
-import { useQuiz } from '../contexts/QuizContext';
 
-function FinishScreen() {
-  const { points, highScore, dispatch, totalPoints } = useQuiz();
-  console.log(points, totalPoints, highScore);
+function FinishScreen({ points, totalPoints, highScore, dispatch }) {
   const percentage = (points / totalPoints) * 100;
   let emoji;
   if (percentage === 100) {
